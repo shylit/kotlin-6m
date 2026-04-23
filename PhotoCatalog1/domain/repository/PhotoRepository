@@ -1,0 +1,9 @@
+package com.example.photocatalog.domain.repository
+
+import com.example.photocatalog.domain.model.Photo
+import okhttp3.ResponseBody
+
+interface PhotoRepository {
+    suspend fun getPhotos(): List<Photo>
+    suspend fun downloadPhoto(url: String): ResponseBody
+}
