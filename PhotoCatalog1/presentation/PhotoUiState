@@ -1,43 +1,9 @@
 package com.example.photocatalog.presentation
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.photocatalog.domain.model.Photo
-import com.example.photocatalog.domain.repository.PhotoRepository
-import com.example.photocatalog.domain.usecase.GetPhotosUseCase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 
-class PhotoViewModel(
-    private val getPhotosUseCase: GetPhotosUseCase,
-    val repository: PhotoRepository
-) : ViewModel() {
-
-    private val _uiState = MutableStateFlow<PhotoUiState>(PhotoUiState.Loading)
-    val uiState: StateFlow<PhotoUiState> = _uiState.asStateFlow()
-
-    private var photosCache: List<Photo> = emptyList()
-
-    init {
-        loadPhotos()
-    }
-
-    fun loadPhotos() {
-        viewModelScope.launch {
-            _uiState.value = PhotoUiState.Loading
-            try {
-                val photos = getPhotosUseCase()
-                photosCache = photos
-                _uiState.value = PhotoUiState.Success(photos)
-            } catch (e: Exception) {
-                _uiState.value = PhotoUiState.Error(e.message ?: "Ошибка загрузки")
-            }
-        }
-    }
-
-    fun getPhotoById(id: String): Photo? {
-        return photosCache.find { it.id == id }
-    }
+sealed class PhotoUiState {
+    object Loading : PhotoUiState()
+    data class Success(val photos: List<Photo>) : PhotoUiState()
+    data class Error(val message: String) : PhotoUiState()
 }
