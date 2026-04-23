@@ -1,0 +1,9 @@
+package com.example.photocatalog.domain.usecase
+
+import com.example.photocatalog.domain.repository.PhotoRepository
+
+class GetPhotosUseCase(
+    private val repository: PhotoRepository
+) {
+    suspend operator fun invoke() = repository.getPhotos()
+}
