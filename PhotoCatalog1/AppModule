@@ -1,0 +1,35 @@
+package com.example.photocatalog
+
+import com.example.photocatalog.data.remote.PicsumApi
+import com.example.photocatalog.data.repository.PhotoRepositoryImpl
+import com.example.photocatalog.domain.usecase.GetPhotosUseCase
+import com.example.photocatalog.presentation.PhotoViewModel
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+
+object AppModule {
+
+    private val logging = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY
+    }
+
+    private val client = OkHttpClient.Builder()
+        .addInterceptor(logging)
+        .build()
+
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("https://picsum.photos/")
+        .client(client)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    private val api = retrofit.create(PicsumApi::class.java)
+    private val repository = PhotoRepositoryImpl(api)
+    private val getPhotosUseCase = GetPhotosUseCase(repository)
+
+    fun provideViewModel(): PhotoViewModel {
+        return PhotoViewModel(getPhotosUseCase, repository)
+    }
+}
