@@ -1,0 +1,45 @@
+package com.example.photocatalog
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.example.photocatalog.presentation.PhotoDetailScreen
+import com.example.photocatalog.presentation.PhotoListScreen
+import com.example.photocatalog.ui.theme.PhotoCatalogTheme
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val viewModel = AppModule.provideViewModel()
+
+        setContent {
+            PhotoCatalogTheme {
+                var selectedPhotoId by remember { mutableStateOf<String?>(null) }
+
+                if (selectedPhotoId == null) {
+                    PhotoListScreen(
+                        viewModel = viewModel,
+                        onPhotoClick = { id ->
+                            selectedPhotoId = id
+                        }
+                    )
+                } else {
+                    val photo = viewModel.getPhotoById(selectedPhotoId!!)
+
+                    if (photo != null) {
+                        PhotoDetailScreen(
+                            photo = photo,
+                            viewModel = viewModel,
+                            onBack = { selectedPhotoId = null }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
