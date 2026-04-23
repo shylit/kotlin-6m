@@ -1,0 +1,16 @@
+package com.example.photocatalog.data.remote
+
+import okhttp3.ResponseBody
+import retrofit2.http.GET
+import retrofit2.http.Streaming
+import retrofit2.http.Url
+
+interface PicsumApi {
+
+    @GET("v2/list?page=1&limit=30")
+    suspend fun getPhotos(): List<PhotoDto>
+
+    @Streaming
+    @GET
+    suspend fun downloadPhoto(@Url url: String): ResponseBody
+}
