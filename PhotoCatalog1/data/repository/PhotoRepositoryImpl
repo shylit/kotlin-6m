@@ -1,0 +1,28 @@
+package com.example.photocatalog.data.repository
+
+import com.example.photocatalog.data.remote.PicsumApi
+import com.example.photocatalog.domain.model.Photo
+import com.example.photocatalog.domain.repository.PhotoRepository
+import okhttp3.ResponseBody
+
+class PhotoRepositoryImpl(
+    private val api: PicsumApi
+) : PhotoRepository {
+
+    override suspend fun getPhotos(): List<Photo> {
+        return api.getPhotos().map {
+            Photo(
+                id = it.id,
+                author = it.author,
+                width = it.width,
+                height = it.height,
+                url = it.url,
+                downloadUrl = it.download_url
+            )
+        }
+    }
+
+    override suspend fun downloadPhoto(url: String): ResponseBody {
+        return api.downloadPhoto(url)
+    }
+}
