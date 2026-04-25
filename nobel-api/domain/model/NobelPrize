@@ -1,0 +1,11 @@
+package com.example.nobelapi.domain.model
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class NobelPrize(
+    val year: Int,
+    val category: String,
+    val title: String,
+    val laureates: List<Laureate>
+)
