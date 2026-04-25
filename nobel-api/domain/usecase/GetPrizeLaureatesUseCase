@@ -1,0 +1,10 @@
+package com.example.nobelapi.domain.usecase
+
+import com.example.nobelapi.domain.repository.NobelPrizeRepository
+
+class GetPrizeLaureatesUseCase(
+    private val repository: NobelPrizeRepository
+) {
+    operator fun invoke(year: Int, category: String) =
+        repository.getLaureatesByPrize(year, category)
+}
