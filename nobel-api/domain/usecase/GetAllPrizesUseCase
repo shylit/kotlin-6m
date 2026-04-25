@@ -1,0 +1,9 @@
+package com.example.nobelapi.domain.usecase
+
+import com.example.nobelapi.domain.repository.NobelPrizeRepository
+
+class GetAllPrizesUseCase(
+    private val repository: NobelPrizeRepository
+) {
+    operator fun invoke() = repository.getAllPrizes()
+}
