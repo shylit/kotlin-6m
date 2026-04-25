@@ -1,0 +1,7 @@
+package com.example.nobelapp.domain.repository
+
+import com.example.nobelapp.domain.model.NobelPrizeItem
+
+interface NobelRepository {
+    suspend fun getPrizes(year: String?, category: String?): List<NobelPrizeItem>
+}
