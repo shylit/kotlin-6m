@@ -1,0 +1,49 @@
+package com.example.authapp
+
+import android.content.Context
+import com.example.authapp.data.local.TokenDataStore
+import com.example.authapp.data.remote.AuthApiService
+import com.example.authapp.data.repository.AuthRepositoryImpl
+import com.example.authapp.domain.usecase.GetUserByIdUseCase
+import com.example.authapp.domain.usecase.GetUsersUseCase
+import com.example.authapp.domain.usecase.LoginUseCase
+import com.example.authapp.domain.usecase.LogoutUseCase
+import com.example.authapp.presentation.AuthViewModel
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
+
+object AppModule {
+
+    private val client = HttpClient(OkHttp) {
+        install(ContentNegotiation) {
+            json(
+                Json {
+                    ignoreUnknownKeys = true
+                }
+            )
+        }
+
+        install(Logging) {
+            level = LogLevel.ALL
+        }
+    }
+
+    fun provideViewModel(context: Context): AuthViewModel {
+        val tokenDataStore = TokenDataStore(context)
+
+        val api = AuthApiService(client)
+        val repository = AuthRepositoryImpl(api, tokenDataStore)
+
+        return AuthViewModel(
+            loginUseCase = LoginUseCase(repository),
+            getUsersUseCase = GetUsersUseCase(repository),
+            getUserByIdUseCase = GetUserByIdUseCase(repository),
+            logoutUseCase = LogoutUseCase(repository)
+        )
+    }
+}
