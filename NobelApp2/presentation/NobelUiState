@@ -1,0 +1,9 @@
+package com.example.nobelapp.presentation
+
+import com.example.nobelapp.domain.model.NobelPrizeItem
+
+sealed class NobelUiState {
+    object Loading : NobelUiState()
+    data class Success(val items: List<NobelPrizeItem>) : NobelUiState()
+    data class Error(val message: String) : NobelUiState()
+}
