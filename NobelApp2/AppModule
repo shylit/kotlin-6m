@@ -1,0 +1,38 @@
+package com.example.nobelapp
+
+import com.example.nobelapp.data.remote.NobelApiService
+import com.example.nobelapp.data.repository.NobelRepositoryImpl
+import com.example.nobelapp.domain.usecase.GetNobelPrizesUseCase
+import com.example.nobelapp.presentation.NobelViewModel
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
+
+object AppModule {
+
+    private val client = HttpClient(OkHttp) {
+        install(ContentNegotiation) {
+            json(
+                Json {
+                    ignoreUnknownKeys = true
+                }
+            )
+        }
+
+        install(Logging) {
+            level = LogLevel.ALL
+        }
+    }
+
+    private val api = NobelApiService(client)
+    private val repository = NobelRepositoryImpl(api)
+    private val useCase = GetNobelPrizesUseCase(repository)
+
+    fun provideViewModel(): NobelViewModel {
+        return NobelViewModel(useCase)
+    }
+}
