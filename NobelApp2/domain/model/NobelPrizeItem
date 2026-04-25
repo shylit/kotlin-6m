@@ -1,0 +1,13 @@
+package com.example.nobelapp.domain.model
+
+data class NobelPrizeItem(
+    val id: String,
+    val year: String,
+    val category: String,
+    val fullName: String,
+    val motivationShort: String,
+    val motivationFull: String,
+    val birthCountry: String,
+    val birthPlace: String,
+    val portraitUrl: String?
+)
