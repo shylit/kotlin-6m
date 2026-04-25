@@ -1,0 +1,91 @@
+package com.example.authapp.presentation
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.authapp.domain.model.AppUser
+import com.example.authapp.domain.usecase.GetUserByIdUseCase
+import com.example.authapp.domain.usecase.GetUsersUseCase
+import com.example.authapp.domain.usecase.LoginUseCase
+import com.example.authapp.domain.usecase.LogoutUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+class AuthViewModel(
+    private val loginUseCase: LoginUseCase,
+    private val getUsersUseCase: GetUsersUseCase,
+    private val getUserByIdUseCase: GetUserByIdUseCase,
+    private val logoutUseCase: LogoutUseCase
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Login)
+    val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
+
+    private var usersCache: List<AppUser> = emptyList()
+
+    fun login(username: String, password: String) {
+        viewModelScope.launch {
+            _uiState.value = AuthUiState.Loading
+
+            try {
+                loginUseCase(username, password)
+                loadUsers()
+            } catch (e: Exception) {
+                _uiState.value = AuthUiState.Error(
+                    e.message ?: "Ошибка авторизации"
+                )
+            }
+        }
+    }
+
+    fun loadUsers() {
+        viewModelScope.launch {
+            _uiState.value = AuthUiState.Loading
+
+            try {
+                val users = getUsersUseCase()
+                usersCache = users
+                _uiState.value = AuthUiState.UsersSuccess(users)
+            } catch (e: Exception) {
+                _uiState.value = AuthUiState.Error(
+                    e.message ?: "Ошибка загрузки пользователей"
+                )
+            }
+        }
+    }
+
+    fun openUser(id: Int) {
+        viewModelScope.launch {
+            _uiState.value = AuthUiState.Loading
+
+            try {
+                val cachedUser = usersCache.find { it.id == id }
+
+                val user = cachedUser ?: getUserByIdUseCase(id)
+
+                _uiState.value = AuthUiState.DetailSuccess(user)
+            } catch (e: Exception) {
+                _uiState.value = AuthUiState.Error(
+                    e.message ?: "Ошибка загрузки пользователя"
+                )
+            }
+        }
+    }
+
+    fun backToUsers() {
+        _uiState.value = AuthUiState.UsersSuccess(usersCache)
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            logoutUseCase()
+            usersCache = emptyList()
+            _uiState.value = AuthUiState.Login
+        }
+    }
+
+    fun backToLogin() {
+        _uiState.value = AuthUiState.Login
+    }
+}
