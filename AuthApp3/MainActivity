@@ -1,0 +1,98 @@
+package com.example.authapp
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import com.example.authapp.presentation.AuthUiState
+import com.example.authapp.presentation.LoginScreen
+import com.example.authapp.presentation.UserDetailScreen
+import com.example.authapp.presentation.UsersListScreen
+import com.example.authapp.ui.theme.AuthAppTheme
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val viewModel = AppModule.provideViewModel(applicationContext)
+
+        setContent {
+            AuthAppTheme {
+                val state by viewModel.uiState.collectAsState()
+
+                when (val currentState = state) {
+                    is AuthUiState.Login -> {
+                        LoginScreen(
+                            isLoading = false,
+                            errorMessage = null,
+                            onLoginClick = { username, password ->
+                                viewModel.login(username, password)
+                            }
+                        )
+                    }
+
+                    is AuthUiState.Loading -> {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+
+                    is AuthUiState.UsersSuccess -> {
+                        UsersListScreen(
+                            users = currentState.users,
+                            onUserClick = { id ->
+                                viewModel.openUser(id)
+                            },
+                            onLogoutClick = {
+                                viewModel.logout()
+                            }
+                        )
+                    }
+
+                    is AuthUiState.DetailSuccess -> {
+                        UserDetailScreen(
+                            user = currentState.user,
+                            onBackClick = {
+                                viewModel.backToUsers()
+                            },
+                            onLogoutClick = {
+                                viewModel.logout()
+                            }
+                        )
+                    }
+
+                    is AuthUiState.Error -> {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(currentState.message)
+
+                            Button(
+                                onClick = {
+                                    viewModel.backToLogin()
+                                }
+                            ) {
+                                Text("Повторить")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
