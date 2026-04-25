@@ -1,0 +1,42 @@
+package com.example.nobelapp.presentation
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.nobelapp.domain.model.NobelPrizeItem
+import com.example.nobelapp.domain.usecase.GetNobelPrizesUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+class NobelViewModel(
+    private val getNobelPrizesUseCase: GetNobelPrizesUseCase
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow<NobelUiState>(NobelUiState.Loading)
+    val uiState: StateFlow<NobelUiState> = _uiState.asStateFlow()
+
+    private var cache: List<NobelPrizeItem> = emptyList()
+
+    init {
+        loadPrizes(null, null)
+    }
+
+    fun loadPrizes(year: String?, category: String?) {
+        viewModelScope.launch {
+            _uiState.value = NobelUiState.Loading
+
+            try {
+                val result = getNobelPrizesUseCase(year, category)
+                cache = result
+                _uiState.value = NobelUiState.Success(result)
+            } catch (e: Exception) {
+                _uiState.value = NobelUiState.Error(e.message ?: "Ошибка загрузки")
+            }
+        }
+    }
+
+    fun getById(id: String): NobelPrizeItem? {
+        return cache.find { it.id == id }
+    }
+}
