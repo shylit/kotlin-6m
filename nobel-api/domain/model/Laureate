@@ -1,0 +1,10 @@
+package com.example.nobelapi.domain.model
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class Laureate(
+    val id: Int,
+    val fullName: String,
+    val motivation: String
+)
