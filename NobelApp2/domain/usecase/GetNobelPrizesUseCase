@@ -1,0 +1,10 @@
+package com.example.nobelapp.domain.usecase
+
+import com.example.nobelapp.domain.repository.NobelRepository
+
+class GetNobelPrizesUseCase(
+    private val repository: NobelRepository
+) {
+    suspend operator fun invoke(year: String?, category: String?) =
+        repository.getPrizes(year, category)
+}
