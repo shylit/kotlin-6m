@@ -1,0 +1,19 @@
+package com.example.nobelapi.domain.repository
+
+import com.example.nobelapi.domain.model.Laureate
+import com.example.nobelapi.domain.model.NobelPrize
+
+interface NobelPrizeRepository {
+
+    fun getAllPrizes(): List<NobelPrize>
+
+    fun getPrizeByYearAndCategory(
+        year: Int,
+        category: String
+    ): NobelPrize?
+
+    fun getLaureatesByPrize(
+        year: Int,
+        category: String
+    ): List<Laureate>?
+}
