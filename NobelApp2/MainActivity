@@ -1,0 +1,43 @@
+package com.example.nobelapp
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.runtime.*
+import com.example.nobelapp.presentation.NobelDetailScreen
+import com.example.nobelapp.presentation.NobelListScreen
+import com.example.nobelapp.ui.theme.NobelAppTheme
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val viewModel = AppModule.provideViewModel()
+
+        setContent {
+            NobelAppTheme {
+                var selectedId by remember { mutableStateOf<String?>(null) }
+
+                if (selectedId == null) {
+                    NobelListScreen(
+                        viewModel = viewModel,
+                        onItemClick = { id ->
+                            selectedId = id
+                        }
+                    )
+                } else {
+                    val item = viewModel.getById(selectedId!!)
+
+                    if (item != null) {
+                        NobelDetailScreen(
+                            item = item,
+                            onBack = {
+                                selectedId = null
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
