@@ -1,0 +1,65 @@
+package com.example.nobelapi.data
+
+import com.example.nobelapi.domain.model.Laureate
+import com.example.nobelapi.domain.model.NobelPrize
+import com.example.nobelapi.domain.repository.NobelPrizeRepository
+
+class NobelPrizeRepositoryImpl : NobelPrizeRepository {
+
+    private val prizes = listOf(
+        NobelPrize(
+            year = 2023,
+            category = "peace",
+            title = "Nobel Peace Prize 2023",
+            laureates = listOf(
+                Laureate(
+                    id = 1,
+                    fullName = "Narges Mohammadi",
+                    motivation = "For her fight against the oppression of women in Iran"
+                )
+            )
+        ),
+        NobelPrize(
+            year = 2023,
+            category = "literature",
+            title = "Nobel Prize in Literature 2023",
+            laureates = listOf(
+                Laureate(
+                    id = 2,
+                    fullName = "Jon Fosse",
+                    motivation = "For his innovative plays and prose"
+                )
+            )
+        ),
+        NobelPrize(
+            year = 2022,
+            category = "physics",
+            title = "Nobel Prize in Physics 2022",
+            laureates = listOf(
+                Laureate(3, "Alain Aspect", "Quantum experiments"),
+                Laureate(4, "John Clauser", "Quantum experiments"),
+                Laureate(5, "Anton Zeilinger", "Quantum experiments")
+            )
+        )
+    )
+
+    override fun getAllPrizes(): List<NobelPrize> {
+        return prizes
+    }
+
+    override fun getPrizeByYearAndCategory(
+        year: Int,
+        category: String
+    ): NobelPrize? {
+        return prizes.find {
+            it.year == year && it.category.equals(category, ignoreCase = true)
+        }
+    }
+
+    override fun getLaureatesByPrize(
+        year: Int,
+        category: String
+    ): List<Laureate>? {
+        return getPrizeByYearAndCategory(year, category)?.laureates
+    }
+}
