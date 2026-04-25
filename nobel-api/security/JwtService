@@ -1,0 +1,31 @@
+package com.example.nobelapi.security
+
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import java.util.*
+
+object JwtService {
+
+    const val issuer = "nobel-api"
+    const val audience = "nobel-users"
+    const val realm = "nobel-api"
+
+    // ключ ≥ 32 символа (по заданию)
+    private const val secret = "super_secret_key_for_nobel_api_123456789"
+
+    private val algorithm = Algorithm.HMAC256(secret)
+
+    fun generateToken(username: String): String {
+        val currentTime = System.currentTimeMillis()
+        val expirationTime = currentTime + 30 * 60 * 1000 // 30 минут
+
+        return JWT.create()
+            .withIssuer(issuer)
+            .withAudience(audience)
+            .withClaim("username", username)
+            .withExpiresAt(Date(expirationTime))
+            .sign(algorithm)
+    }
+
+    fun getAlgorithm(): Algorithm = algorithm
+}
