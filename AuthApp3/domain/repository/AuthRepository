@@ -1,0 +1,10 @@
+package com.example.authapp.domain.repository
+
+import com.example.authapp.domain.model.AppUser
+
+interface AuthRepository {
+    suspend fun login(username: String, password: String)
+    suspend fun getUsers(): List<AppUser>
+    suspend fun getUserById(id: Int): AppUser
+    suspend fun logout()
+}
