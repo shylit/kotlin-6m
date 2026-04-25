@@ -1,0 +1,37 @@
+package com.example.nobelapp.data.repository
+
+import com.example.nobelapp.data.remote.NobelApiService
+import com.example.nobelapp.domain.model.NobelPrizeItem
+import com.example.nobelapp.domain.repository.NobelRepository
+
+class NobelRepositoryImpl(
+    private val api: NobelApiService
+) : NobelRepository {
+
+    override suspend fun getPrizes(year: String?, category: String?): List<NobelPrizeItem> {
+        val response = api.getPrizes(year, category)
+
+        return response.nobelPrizes.flatMap { prize ->
+            prize.laureates.map { laureate ->
+
+                val fullName = laureate.fullName?.en ?: "Unknown"
+                val motivationFull = laureate.motivation?.en ?: "No motivation"
+                val motivationShort =
+                    if (motivationFull.length > 100) motivationFull.take(100) + "..."
+                    else motivationFull
+
+                NobelPrizeItem(
+                    id = laureate.id + "_" + prize.awardYear + "_" + prize.category.en,
+                    year = prize.awardYear,
+                    category = prize.category.en,
+                    fullName = fullName,
+                    motivationShort = motivationShort,
+                    motivationFull = motivationFull,
+                    birthCountry = laureate.birth?.place?.country?.en ?: "Unknown",
+                    birthPlace = laureate.birth?.place?.city?.en ?: "Unknown",
+                    portraitUrl = null
+                )
+            }
+        }
+    }
+}
