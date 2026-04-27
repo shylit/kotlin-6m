@@ -10,7 +10,7 @@ object JwtService {
     const val audience = "nobel-users"
     const val realm = "nobel-api"
 
-    // ключ ≥ 32 символа (по заданию)
+    // ключ
     private const val secret = "super_secret_key_for_nobel_api_123456789"
 
     private val algorithm = Algorithm.HMAC256(secret)
